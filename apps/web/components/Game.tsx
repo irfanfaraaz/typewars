@@ -6,7 +6,7 @@ import type {
   Player,
   PlayerScore,
 } from "@/lib/types/types";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Socket, io } from "socket.io-client";
 import { toast } from "sonner";
 import Leaderboard from "./Leaderboard";
@@ -18,7 +18,7 @@ import {
   SelectContent,
   SelectTrigger,
   SelectValue,
-} from "./ui/select"; // Assuming you have a Select component
+} from "./ui/select";
 
 export default function Game({ gameId, name }: GameProps) {
   const [ioInstance, setIoInstance] = useState<Socket>();
@@ -29,6 +29,7 @@ export default function Game({ gameId, name }: GameProps) {
   const [inputParagraph, setInputParagraph] = useState<string>("");
   const [selectedTime, setSelectedTime] = useState<string>("60");
   const [timeLeft, setTimeLeft] = useState<number>(Number(selectedTime));
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     const socket = io(process.env.NEXT_PUBLIC_WEBSOCKET_URL as string, {
@@ -64,17 +65,17 @@ export default function Game({ gameId, name }: GameProps) {
   useEffect(() => {
     if (gameStatus !== "in-progress") return;
 
-    setTimeLeft(Number(selectedTime)); // Ensure timeLeft is set correctly when game starts
+    setTimeLeft(Number(selectedTime));
 
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-          ioInstance?.emit("timer-update", 0); // Emit timer update to server
+          ioInstance?.emit("timer-update", 0);
           return 0;
         }
         const newTimeLeft = prev - 1;
-        ioInstance?.emit("timer-update", newTimeLeft); // Emit timer update to server
+        ioInstance?.emit("timer-update", newTimeLeft);
         return newTimeLeft;
       });
     }, 1000);
@@ -120,6 +121,7 @@ export default function Game({ gameId, name }: GameProps) {
       setParagraph(paragraph);
       setGameStatus("in-progress");
       setTimeLeft(Number(selectedTime));
+      textareaRef.current?.focus();
     });
 
     ioInstance.on("game-finished", () => {
@@ -154,6 +156,8 @@ export default function Game({ gameId, name }: GameProps) {
     if (!ioInstance) return;
 
     ioInstance.emit("start-game", Number(selectedTime));
+    setGameStatus("in-progress");
+    textareaRef.current?.focus();
   }
 
   function copyInviteCode() {
@@ -167,6 +171,18 @@ export default function Game({ gameId, name }: GameProps) {
       });
   }
 
+  function copyInviteLink() {
+    const inviteLink = `${window.location.origin}/game/${gameId}`;
+    navigator.clipboard
+      .writeText(inviteLink)
+      .then(() => {
+        toast.success("Invite link copied to clipboard!");
+      })
+      .catch((err) => {
+        toast.error("Failed to copy invite link.");
+      });
+  }
+
   window.onbeforeunload = () => {
     if (ioInstance) {
       ioInstance.emit("leave");
@@ -175,13 +191,11 @@ export default function Game({ gameId, name }: GameProps) {
 
   return (
     <div className="w-screen p-10 grid grid-cols-1 lg:grid-cols-3 gap-20">
-      {/* Leaderboard */}
       <div className="w-full order-last lg:order-first">
         <h2 className="text-2xl font-medium mb-10 mt-10 lg:mt-0">
           Leaderboard
         </h2>
         <div className="flex flex-col gap-5 w-full">
-          {/* sort players based on score and map */}
           {players
             .sort((a, b) => b.score - a.score)
             .map((player, index) => (
@@ -190,7 +204,6 @@ export default function Game({ gameId, name }: GameProps) {
         </div>
       </div>
 
-      {/* Game */}
       <div className="lg:col-span-2 h-full">
         {gameStatus === "not-started" && (
           <div className="flex flex-col items-center justify-center p-10">
@@ -201,7 +214,7 @@ export default function Game({ gameId, name }: GameProps) {
             {host === ioInstance?.id && (
               <>
                 <Select value={selectedTime} onValueChange={setSelectedTime}>
-                  <SelectTrigger className="w-60 mt-5">
+                  <SelectTrigger className="w-52 mt-5">
                     <SelectValue placeholder="Select duration" />
                   </SelectTrigger>
                   <SelectContent>
@@ -210,13 +223,16 @@ export default function Game({ gameId, name }: GameProps) {
                     <SelectItem value="90">90 seconds</SelectItem>
                   </SelectContent>
                 </Select>
-                <Button className="mt-10 px-20" onClick={startGame}>
+                <Button className="w-52 mt-10 " onClick={startGame}>
                   Start Game
                 </Button>
               </>
             )}
-            <Button className="mt-5 px-16" onClick={copyInviteCode}>
+            <Button className=" w-52 mt-5 " onClick={copyInviteCode}>
               Copy Invite Code
+            </Button>
+            <Button className="w-52 mt-5" onClick={copyInviteLink}>
+              Copy Invite Link
             </Button>
           </div>
         )}
@@ -236,6 +252,7 @@ export default function Game({ gameId, name }: GameProps) {
               <p className="text-2xl lg:text-5xl p-5">{paragraph}</p>
 
               <Textarea
+                ref={textareaRef}
                 value={inputParagraph}
                 onChange={(e) => setInputParagraph(e.target.value)}
                 className="text-2xl lg:text-5xl outline-none p-5 absolute top-0 left-0 right-0 bottom-0 z-10 opacity-75"
