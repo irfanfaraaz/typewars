@@ -64,13 +64,18 @@ export default function Game({ gameId, name }: GameProps) {
   useEffect(() => {
     if (gameStatus !== "in-progress") return;
 
+    setTimeLeft(Number(selectedTime)); // Ensure timeLeft is set correctly when game starts
+
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
+          ioInstance?.emit("timer-update", 0); // Emit timer update to server
           return 0;
         }
-        return prev - 1;
+        const newTimeLeft = prev - 1;
+        ioInstance?.emit("timer-update", newTimeLeft); // Emit timer update to server
+        return newTimeLeft;
       });
     }, 1000);
 
