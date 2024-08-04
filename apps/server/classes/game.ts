@@ -19,7 +19,7 @@ export class Game {
   }
 
   setupListeners(socket: Socket) {
-    socket.on("start-game", async () => {
+    socket.on("start-game", async (selectedTime: number) => {
       if (this.gameStatus === "in-progress")
         return socket.emit("error", "The game has already started");
 
@@ -45,12 +45,12 @@ export class Game {
       this.paragraph = paragraph;
       this.io.to(this.gameId).emit("game-started", paragraph);
 
-      // Set a timer for 60 seconds
+      // Set a timer for the selected time
       setTimeout(() => {
         this.gameStatus = "finished";
         this.io.to(this.gameId).emit("game-finished");
         this.io.to(this.gameId).emit("players", this.players);
-      }, 60000);
+      }, selectedTime * 1000);
     });
 
     // Get player keystrokes and check if they match the paragraph
