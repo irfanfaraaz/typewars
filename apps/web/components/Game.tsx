@@ -149,6 +149,7 @@ export default function Game({ gameId, name }: GameProps) {
     ioInstance.off("game-started");
     ioInstance.off("game-finished");
     ioInstance.off("new-host");
+    ioInstance.off("game-type");
     ioInstance.off("error");
   }
 
@@ -199,7 +200,12 @@ export default function Game({ gameId, name }: GameProps) {
           {players
             .sort((a, b) => b.score - a.score)
             .map((player, index) => (
-              <Leaderboard key={player.id} player={player} rank={index + 1} />
+              <Leaderboard
+                key={player.id}
+                player={player}
+                rank={index + 1}
+                isHost={player.id === host}
+              />
             ))}
         </div>
       </div>
