@@ -28,6 +28,11 @@ export default function Home() {
 
     if (!inviteCode) return toast.error("Invite code is required");
 
+    const inviteCodePattern = /^(free|paid)-[0-9a-fA-F-]{36}$/;
+    if (!inviteCodePattern.test(inviteCode)) {
+      return toast.error("Invalid invite code format");
+    }
+
     router.push(`/game/${inviteCode}`);
   }
 
