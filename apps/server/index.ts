@@ -1,6 +1,6 @@
 import { createServer } from "http";
 import { Server } from "socket.io";
-import { setupListeners } from "./SetuoListeners";
+import { setupListeners } from "./SetupListeners";
 
 const PORT = process.env.PORT || 8000;
 

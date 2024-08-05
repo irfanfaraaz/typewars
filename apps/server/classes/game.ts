@@ -1,6 +1,6 @@
 import { Server, Socket } from "socket.io";
 import { generateParagraph } from "../utils/paragraph";
-import { rooms } from "../SetuoListeners";
+import { rooms } from "../SetupListeners";
 export class Game {
   gameStatus: "not-started" | "in-progress" | "finished";
   gameId: string;
