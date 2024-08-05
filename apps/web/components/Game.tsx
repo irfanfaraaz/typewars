@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from "./ui/select";
 
-export default function Game({ gameId, name }: GameProps) {
+export default function Game({ gameId, name, gameType }: GameProps) {
   const [ioInstance, setIoInstance] = useState<Socket>();
   const [players, setPlayers] = useState<Player[]>([]);
   const [gameStatus, setGameStatus] = useState<GameStatus>("not-started");
@@ -97,6 +97,9 @@ export default function Game({ gameId, name }: GameProps) {
 
     ioInstance.on("player-joined", (player: Player) => {
       setPlayers((prev) => [...prev, player]);
+      toast.success(
+        `${player.name} has joined the game as a ${gameType} player!`
+      );
     });
 
     ioInstance.on("player-left", (id: string) => {
@@ -216,6 +219,7 @@ export default function Game({ gameId, name }: GameProps) {
             <h1 className="text-2xl font-bold">
               Waiting for players to join...
             </h1>
+            <h2 className="text-xl font-medium mt-5">Game Type: {gameType}</h2>
 
             {host === ioInstance?.id && (
               <>

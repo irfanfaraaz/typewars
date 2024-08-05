@@ -4,12 +4,20 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
-import { FormEvent } from "react";
+import { FormEvent, useState } from "react";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
+import {
+  Select,
+  SelectItem,
+  SelectContent,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function Home() {
   const router = useRouter();
+  const [gameType, setGameType] = useState("free");
 
   function joinGame(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -24,7 +32,7 @@ export default function Home() {
   }
 
   function createGame() {
-    const inviteCode = uuidv4();
+    const inviteCode = `${gameType}-${uuidv4()}`;
     router.push(`/game/${inviteCode}`);
   }
 
@@ -46,6 +54,18 @@ export default function Home() {
               As the host, you can challenge your friends to see who types the
               fastest.
             </p>
+            <div className="mt-5">
+              <label className="block mb-2">Select Game Type :</label>
+              <Select value={gameType} onValueChange={setGameType}>
+                <SelectTrigger className="p-2 border rounded">
+                  <SelectValue placeholder="Select game type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="free">Free</SelectItem>
+                  <SelectItem value="paid">Paid</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <div>

@@ -12,6 +12,7 @@ const page = ({
   searchParams: { name?: string };
   params: { gameId: string };
 }) => {
+  const [gameType, gameUUID] = params.gameId.split("-");
   async function appendName(formData: FormData) {
     "use server";
 
@@ -49,7 +50,9 @@ const page = ({
       </main>
     );
 
-  return <Game gameId={params.gameId} name={searchParams.name} />;
+  return (
+    <Game gameId={params.gameId} name={searchParams.name} gameType={gameType} />
+  );
 };
 
 export default page;

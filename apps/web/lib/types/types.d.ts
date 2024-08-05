@@ -14,4 +14,5 @@ export type GameStatus = "not-started" | "in-progress" | "finished";
 export type GameProps = {
   name: string;
   gameId: string;
+  gameType: string;
 };
