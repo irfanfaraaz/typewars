@@ -65,8 +65,6 @@ export default function Game({ gameId, name, gameType }: GameProps) {
   useEffect(() => {
     if (gameStatus !== "in-progress") return;
 
-    setTimeLeft(Number(selectedTime));
-
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
@@ -123,7 +121,6 @@ export default function Game({ gameId, name, gameType }: GameProps) {
     ioInstance.on("game-started", (paragraph: string) => {
       setParagraph(paragraph);
       setGameStatus("in-progress");
-      setTimeLeft(Number(selectedTime));
       textareaRef.current?.focus();
     });
 
@@ -161,6 +158,7 @@ export default function Game({ gameId, name, gameType }: GameProps) {
 
     ioInstance.emit("start-game", Number(selectedTime));
     setGameStatus("in-progress");
+    setTimeLeft(Number(selectedTime)); // Ensure timeLeft is set correctly when the game starts
     textareaRef.current?.focus();
   }
 
